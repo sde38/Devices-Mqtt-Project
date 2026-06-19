@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     // 1. Instanciation du moteur métier
-    HardwareMonitorEngine engine;
+    HardwareMonitoringEngine engine;
     
     // 2. Création de la fenêtre Qt (qui va s'abonner au moteur)
     MainWindow window(engine);

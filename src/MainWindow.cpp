@@ -4,7 +4,7 @@
 #include <QMetaObject>
 #include <QThread>
 
-MainWindow::MainWindow(HardwareMonitorEngine& engine, QWidget* parent)
+MainWindow::MainWindow(HardwareMonitoringEngine& engine, QWidget* parent)
     : QMainWindow(parent), m_engine(engine) 
 {
     resize(400, 600);
@@ -71,5 +71,23 @@ void MainWindow::onDeviceRemoved(int id) {
         card->deleteLater();               // On demande à Qt de le détruire proprement
         
         m_activeWidgets.erase(it);         // On l'enlève de notre suivi
+    }
+}
+
+
+// 1. Le moteur notifie que les données d'un appareil ont changé (ex: Notification::ItemUpdated)
+// 2. La MainWindow reçoit l'ID de l'appareil modifié et retrouve le widget associé :
+void MainWindow::onDeviceUpdated(int id, float newTemp, float newLoad) {
+    if (thread() != QThread::currentThread()) {
+        QMetaObject::invokeMethod(this, [this, id, newTemp, newLoad]() {
+            onDeviceUpdated(id, newTemp, newLoad);
+            }, Qt::QueuedConnection);
+        return;
+    }
+
+    auto it = m_activeWidgets.find(id);
+    if (it != m_activeWidgets.end()) {
+        // 3. C'est ICI que updateData prend tout son sens !
+        it->second->updateData(newTemp, newLoad);
     }
 }

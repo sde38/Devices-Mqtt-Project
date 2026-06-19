@@ -11,8 +11,8 @@ TEST(HardwareDeviceTest, DefaultConstructionAndProperties) {
     EXPECT_EQ(device.id, 42);
     EXPECT_EQ(device.name, "Test GPU");
     EXPECT_EQ(device.type, "GPU");
-    EXPECT_FLOAT_EQ(device.temperature, 55.0f);
-    EXPECT_FLOAT_EQ(device.loadPercentage, 10.0f);
+    EXPECT_FLOAT_EQ(device.temperature.value(), 55.0f);
+    EXPECT_FLOAT_EQ(device.loadPercentage.value(), 10.0f);
 }
 
 // Test crucial : Est-ce que notre structure valide bien le concept C++20 ?

@@ -14,43 +14,44 @@
 #include "HardwareMonitoringEngine.h"
 #include <chrono>
 
-HardwareMonitorEngine::HardwareMonitorEngine() {
+HardwareMonitoringEngine::HardwareMonitoringEngine() {
     // On commence avec quelques périphériques de base fixes au démarrage
     m_devices.add(HardwareDevice{m_nextId++, "Intel Core i9-13900K", "CPU", 42.5f, 12.0f});
     m_devices.add(HardwareDevice{m_nextId++, "NVIDIA RTX 4090", "GPU", 35.0f, 0.0f});
 }
 
-HardwareMonitorEngine::~HardwareMonitorEngine() {
+HardwareMonitoringEngine::~HardwareMonitoringEngine() {
     stop();
 }
 
-void HardwareMonitorEngine::start() {
-    if (m_running) return;
+void HardwareMonitoringEngine::start() {
+    if (m_running) { return; }
+
     m_running = true;
     
     // Lancement du thread C++20 (m_simulationThread s'occupe de sa propre durée de vie)
-    m_simulationThread = std::jthread(&HardwareMonitorEngine::runSimulation, this);
+    m_simulationThread = std::jthread(&HardwareMonitoringEngine::runSimulation, this);
 }
 
-void HardwareMonitorEngine::stop() {
+void HardwareMonitoringEngine::stop() {
     m_running = false;
     if (m_simulationThread.joinable()) {
         m_simulationThread.join();
     }
 }
 
-void HardwareMonitorEngine::simulateDisconnection(int id) {
+void HardwareMonitoringEngine::simulateDisconnection(int id) {
     // Utilise la méthode removeById que l'on a planifiée pour ObservableCollection
     m_devices.removeById(id);
 }
 
-void HardwareMonitorEngine::runSimulation() {
+void HardwareMonitoringEngine::runSimulation() {
     int loopCount = 0;
 
     while (m_running) {
         // On attend 3 secondes entre chaque événement de simulation
         std::this_thread::sleep_for(std::chrono::seconds(3));
-        if (!m_running) break;
+        if (!m_running) { break; }
 
         loopCount++;
 
@@ -60,8 +61,8 @@ void HardwareMonitorEngine::runSimulation() {
                 m_nextId++, 
                 "Clé USB SanDisk (Disque " + std::to_string(m_nextId) + ")", 
                 "Stockage", 
-                28.0f, 
-                0.0f
+                28.0F, 
+                0.0F
             };
             
             // Cela va notifier automatiquement la MainWindow grâce à ton concept !

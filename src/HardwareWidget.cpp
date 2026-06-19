@@ -14,9 +14,9 @@ HardwareWidget::HardwareWidget(const HardwareDevice& device, QWidget* parent)
     
     m_loadBar = new QProgressBar(this);
     m_loadBar->setRange(0, 100);
-    m_loadBar->setValue(static_cast<int>(device.loadPercentage));
+    m_loadBar->setValue(static_cast<int>(device.loadPercentage.value()));
     
-    m_tempLabel = new QLabel(QString("Température: %1 °C").arg(device.temperature), this);
+    m_tempLabel = new QLabel(QString("Température: %1 °C").arg(device.temperature.value()), this);
 
     auto* closeButton = new QPushButton("Simuler Déconnexion", this);
     closeButton->setStyleSheet("background-color: #c0392b; color: white; border: none; padding: 5px; border-radius: 4px;");

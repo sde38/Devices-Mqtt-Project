@@ -2,7 +2,7 @@
 // en arrière-plan sans bloquer l'application. 
 // On utilise un std::jthread (C++20) pour simuler l'arrivée et le départ de périphériques.
 
-// Pour la couche métier, le HardwareMonitorEngine est le chef d'orchestre de ton application. 
+// Pour la couche métier, le HardwareMonitoringEngine est le chef d'orchestre de ton application. 
 // C'est lui qui possède et gère la ObservableCollection, et qui simule (ou récupère) l'activité 
 // du matériel informatique.
 
@@ -12,7 +12,7 @@
 #include "ObservableCollection.h"
 #include "HardwareDevice.h"
 
-class HardwareMonitorEngine {
+class HardwareMonitoringEngine {
 private:
     // La collection réactive qui contient nos périphériques
     ObservableCollection<HardwareDevice> m_devices;
@@ -26,8 +26,8 @@ private:
     void runSimulation();
 
 public:
-    HardwareMonitorEngine();
-    ~HardwareMonitorEngine();
+    HardwareMonitoringEngine();
+    ~HardwareMonitoringEngine();
 
     // Permet de démarrer et arrêter la surveillance/simulation
     void start();

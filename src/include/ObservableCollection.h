@@ -6,12 +6,13 @@
 #include "Concept_1.h"
 
 // Les types de notifications possibles (comme dans ton projet)
-enum class Notifications {
+enum class Notifications: std::uint8_t {
     ItemAdded,
     ItemRemoved
 };
 
 template <typename T>
+requires HasIntegralId<T>
 class ObservableCollection {
 private:
     std::vector<T> m_items;

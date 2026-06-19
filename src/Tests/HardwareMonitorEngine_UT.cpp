@@ -8,15 +8,15 @@
 class MockSubscriber : public QObject {
 public:
     int lastNotifiedId = -1;
-    void onItemAdded(int id) { lastNotifiedId = id; }
+    void onItemLastNotified(int id) { lastNotifiedId = id; }
 };
 
-TEST(HardwareMonitorEngineTest, SubscriptionAndNotificationChain) {
-    HardwareMonitorEngine engine;
+TEST(HardwareMonitoringEngineTest, SubscriptionAndNotificationChain) {
+    HardwareMonitoringEngine engine;
     MockSubscriber subscriber;
 
     // On s'abonne à l'événement d'ajout
-    engine.getDevices().subscribe(&subscriber, &MockSubscriber::onItemAdded, Notifications::ItemAdded);
+    engine.getDevices().subscribe(&subscriber, &MockSubscriber::onItemLastNotified, Notifications::ItemAdded);
 
     // On crée un périphérique et on l'ajoute directement à la collection du moteur
     HardwareDevice device{99, "Test Device", "USB", 20.0f, 0.0f};
@@ -26,11 +26,11 @@ TEST(HardwareMonitorEngineTest, SubscriptionAndNotificationChain) {
     EXPECT_EQ(subscriber.lastNotifiedId, 99);
 }
 
-TEST(HardwareMonitorEngineTest, ManualDisconnectionExclusion) {
-    HardwareMonitorEngine engine;
+TEST(HardwareMonitoringEngineTest, ManualDisconnectionExclusion) {
+    HardwareMonitoringEngine engine;
     MockSubscriber subscriber;
 
-    engine.getDevices().subscribe(&subscriber, &MockSubscriber::onItemAdded, Notifications::ItemRemoved);
+    engine.getDevices().subscribe(&subscriber, &MockSubscriber::onItemLastNotified, Notifications::ItemRemoved);
 
     // On déclenche la suppression de l'ID par défaut (le moteur initialise l'ID 1 dans son constructeur)
     engine.simulateDisconnection(1);

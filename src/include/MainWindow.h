@@ -13,18 +13,19 @@
 class MainWindow : public QMainWindow {
     Q_OBJECT
 private:
-    HardwareMonitorEngine& m_engine;
+    HardwareMonitoringEngine& m_engine;
     QVBoxLayout* m_cardsLayout; // Layout où on ajoute/supprime les widgets
     
     // Permet de retrouver rapidement le Widget associé à un ID de périphérique
     std::map<int, HardwareWidget*> m_activeWidgets;
 
 public:
-    explicit MainWindow(HardwareMonitorEngine& engine, QWidget* parent = nullptr);
+    explicit MainWindow(HardwareMonitoringEngine& engine, QWidget* parent = nullptr);
     ~MainWindow() = default;
 
 private:
     // Les slots/méthodes qui seront appelés par les callbacks de ta collection
     void onDeviceAdded(int id);
     void onDeviceRemoved(int id);
+    void onDeviceUpdated(int id, float newTemp, float newLoad);
 };
