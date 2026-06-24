@@ -17,6 +17,9 @@ target_include_directories(MqttComm PUBLIC
     "${PAHO_MQTT_CPP_DIR}/include"
 )
 
+# Lien avec la dépendance JSON
+target_link_libraries(MqttComm PUBLIC nlohmann_json::nlohmann_json)
+
 # Définition obligatoire pour le mode statique de Paho C++
 target_compile_definitions(MqttComm PUBLIC PAHO_MQTTPP_STATIC)
 
