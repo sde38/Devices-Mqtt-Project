@@ -7,25 +7,25 @@
 #include <QScrollArea>
 #include <map>
 
-#include "HardwareMonitoringEngine.h"
-#include "HardwareWidget.h"
+#include "DevicesMonitoringEngine.h"
+#include "DeviceWidget.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 private:
-    HardwareMonitoringEngine& m_engine;
+    DevicesMonitoringEngine& m_engine;
     QVBoxLayout* m_cardsLayout; // Layout où on ajoute/supprime les widgets
     
     // Permet de retrouver rapidement le Widget associé à un ID de périphérique
-    std::map<int, HardwareWidget*> m_activeWidgets;
+    std::map<int, DeviceWidget*> m_activeWidgets;
 
 public:
-    explicit MainWindow(HardwareMonitoringEngine& engine, QWidget* parent = nullptr);
+    explicit MainWindow(DevicesMonitoringEngine& engine, QWidget* parent = nullptr);
     ~MainWindow() = default;
 
 private:
     // Les slots/méthodes qui seront appelés par les callbacks de ta collection
     void onDeviceAdded(int id);
     void onDeviceRemoved(int id);
-    void onDeviceUpdated(int id, float newTemp, float newLoad);
+    void onDeviceUpdated(int id);
 };

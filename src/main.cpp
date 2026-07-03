@@ -1,27 +1,43 @@
-// Pour lier le tout, le point d'entrée instancie le moteur, démarre la boucle de simulation, 
-// affiche la fenêtre et démarre l'application.
+#include <QCoreApplication>
+#include <QDebug>
 
-#include <QApplication>
-#include "HardwareMonitoringEngine.h"
-#include "MainWindow.h"
+#include "MqttManagerMonitoring.h"
+#include "DevicesMonitoringEngine.h"
 
-int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+// ============================================================================
+// Chaine de construction, sans singleton :
+//
+//   1) QCoreApplication : necessaire pour que la boucle d'evenements Qt
+//      tourne (les QMetaObject::invokeMethod(..., Qt::QueuedConnection)
+//      utilises par MqttManagerMonitoring ne se declenchent qu'une fois
+//      app.exec() lance).
+//   2) MqttManagerMonitoring : construit directement avec l'adresse du
+//      broker et l'identifiant client (plus de configurer() separe).
+//   3) DevicesMonitoringEngine : recoit MqttManagerMonitoring& en parametre
+//      de constructeur (injection de dependance explicite).
+//
+// Adapter serverAddress / clientId a l'environnement reel (fichier de
+// configuration, variables d'environnement, arguments de ligne de commande...).
+// ============================================================================
+int main(int argc, char* argv[]) {
+    QCoreApplication app(argc, argv);
 
-    // 1. Instanciation du moteur métier
-    HardwareMonitoringEngine engine;
-    
-    // 2. Création de la fenêtre Qt (qui va s'abonner au moteur)
-    MainWindow window(engine);
-    window.show();
+    MqttManagerMonitoring mqttMonitoring("tcp://localhost:1883", "monitoring-client");
 
-    // 3. Démarrage de la simulation d'arrière-plan (thread C++20)
+    if (!mqttMonitoring.connecter()) {
+        qWarning() << "[main] Impossible de se connecter au broker MQTT";
+        return 1;
+    }
+
+    mqttMonitoring.demarrerAbonnements();
+
+    DevicesMonitoringEngine engine(mqttMonitoring);
     engine.start();
 
     int result = app.exec();
 
-    // 4. Arrêt propre du thread à la fermeture de l'UI
-    engine.stop(); 
-    
+    engine.stop();
+    mqttMonitoring.deconnecter();
+
     return result;
 }

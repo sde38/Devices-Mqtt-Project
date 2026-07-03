@@ -4,7 +4,7 @@
 #include <QMetaObject>
 #include <QThread>
 
-MainWindow::MainWindow(HardwareMonitoringEngine& engine, QWidget* parent)
+MainWindow::MainWindow(DevicesMonitoringEngine& engine, QWidget* parent)
     : QMainWindow(parent), m_engine(engine) 
 {
     resize(400, 600);
@@ -25,11 +25,14 @@ MainWindow::MainWindow(HardwareMonitoringEngine& engine, QWidget* parent)
     // LA MAGIE DU CONCEPT : ABONNEMENT TYPE-SAFE VIA TON OBSERVABLECOLLECTION
     // =========================================================================
     
-    // 1. Abonnement à l'ajout
+    // Abonnement à l'ajout
     m_engine.getDevices().subscribe(this, &MainWindow::onDeviceAdded, Notifications::ItemAdded);
 
-    // 2. Abonnement à la suppression
+    // Abonnement à la suppression
     m_engine.getDevices().subscribe(this, &MainWindow::onDeviceRemoved, Notifications::ItemRemoved);
+
+    // Abonnement à la mise a jour
+    m_engine.getDevices().subscribe(this, &MainWindow::onDeviceUpdated, Notifications::ItemUpdated);
 }
 
 void MainWindow::onDeviceAdded(int id) {
@@ -43,15 +46,15 @@ void MainWindow::onDeviceAdded(int id) {
     // Le moteur vient d'ajouter l'élément, on peut chercher ses infos actuelles.
     // (Dans un vrai projet, on ferait une méthode getById dans la collection)
     // Pour l'exemple, on simule la création d'une carte générique avec l'ID reçu :
-    HardwareDevice fakeDevice{id, "Périphérique dynamique " + std::to_string(id), "USB", 30.0f, 15.0f};
+    Device fakeDevice{id, "Périphérique dynamique " + std::to_string(id), DeviceType::GPU, 30.0f, 15.0f};
 
-    auto* card = new HardwareWidget(fakeDevice, this);
+    auto* card = new DeviceWidget(fakeDevice, this);
     m_cardsLayout->addWidget(card);
     m_activeWidgets[id] = card;
 
     // Si l'utilisateur clique sur "Simuler déconnexion" dans la carte, on prévient le moteur
-    connect(card, &HardwareWidget::disconnectionRequested, [this](int devId) {
-        m_engine.simulateDisconnection(devId);
+    connect(card, &DeviceWidget::disconnectionRequested, [this](int devId) {
+        m_engine.disconnection(devId);
     });
 }
 
@@ -65,7 +68,7 @@ void MainWindow::onDeviceRemoved(int id) {
     // On cherche si le widget existe dans notre map UI
     auto it = m_activeWidgets.find(id);
     if (it != m_activeWidgets.end()) {
-        HardwareWidget* card = it->second;
+        DeviceWidget* card = it->second;
         
         m_cardsLayout->removeWidget(card); // On l'enlève du layout
         card->deleteLater();               // On demande à Qt de le détruire proprement
@@ -77,17 +80,19 @@ void MainWindow::onDeviceRemoved(int id) {
 
 // 1. Le moteur notifie que les données d'un appareil ont changé (ex: Notification::ItemUpdated)
 // 2. La MainWindow reçoit l'ID de l'appareil modifié et retrouve le widget associé :
-void MainWindow::onDeviceUpdated(int id, float newTemp, float newLoad) {
+void MainWindow::onDeviceUpdated(int id) {
     if (thread() != QThread::currentThread()) {
-        QMetaObject::invokeMethod(this, [this, id, newTemp, newLoad]() {
-            onDeviceUpdated(id, newTemp, newLoad);
+        QMetaObject::invokeMethod(this, [this, id]() {
+            onDeviceUpdated(id);
             }, Qt::QueuedConnection);
         return;
     }
 
     auto it = m_activeWidgets.find(id);
     if (it != m_activeWidgets.end()) {
-        // 3. C'est ICI que updateData prend tout son sens !
-        it->second->updateData(newTemp, newLoad);
+        const Device* device = m_engine.getDevices().getById(id);
+        if (device) {
+            it->second->updateData(device->temperature, device->charge);
+        }
     }
 }

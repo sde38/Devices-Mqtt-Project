@@ -6,10 +6,10 @@
 #include <QTest>
 #include <QSignalSpy>
 
-#include "HardwareWidget.h"
+#include "DeviceWidget.h"
 
 // Fixture permettant de configurer l'environnement graphique Qt avant chaque test
-class HardwareWidgetTest : public ::testing::Test {
+class DeviceWidgetTest : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
         // GTest a besoin d'une instance QApplication pour instancier des QWidgets
@@ -19,9 +19,9 @@ protected:
     }
 };
 
-TEST_F(HardwareWidgetTest, WidgetInitializationAndDataUpdate) {
-    HardwareDevice device{12, "Fake Fan", "COOLER", 30.0f, 50.0f};
-    HardwareWidget widget(device);
+TEST_F(DeviceWidgetTest, WidgetInitializationAndDataUpdate) {
+    Device device{12, "Fake Fan", DeviceType::RAM, 30.0f, 50.0f};
+    DeviceWidget widget(device);
 
     // On vérifie que le widget a bien capturé l'ID
     EXPECT_EQ(widget.getDeviceId(), 12);
@@ -33,12 +33,12 @@ TEST_F(HardwareWidgetTest, WidgetInitializationAndDataUpdate) {
     SUCCEED();
 }
 
-TEST_F(HardwareWidgetTest, ButtonClickEmitsSignal) {
-    HardwareDevice device{77, "Removable Disk", "USB", 25.0f, 0.0f};
-    HardwareWidget widget(device);
+TEST_F(DeviceWidgetTest, ButtonClickEmitsSignal) {
+    Device device{77, "Removable Disk", DeviceType::GPU, 25.0f, 0.0f};
+    DeviceWidget widget(device);
 
     // Utilisation du composant QtTest pour intercepter les signaux
-    QSignalSpy spy(&widget, &HardwareWidget::disconnectionRequested);
+    QSignalSpy spy(&widget, &DeviceWidget::disconnectionRequested);
 
     // On cherche le bouton "Simuler Déconnexion" dans les enfants du Widget
     QPushButton* button = widget.findChild<QPushButton*>();

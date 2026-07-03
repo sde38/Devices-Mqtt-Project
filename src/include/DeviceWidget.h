@@ -6,9 +6,10 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include "HardwareDevice.h"
 
-class HardwareWidget : public QWidget {
+#include <Structures.h>
+
+class DeviceWidget : public QWidget {
     Q_OBJECT
 private:
     int m_deviceId;
@@ -17,7 +18,7 @@ private:
     QLabel* m_tempLabel;
 
 public:
-    explicit HardwareWidget(const HardwareDevice& device, QWidget* parent = nullptr);
+    explicit DeviceWidget(const Device& device, QWidget* parent = nullptr);
     [[nodiscard]]  int getDeviceId() const { return m_deviceId; }
     
     // Permet de mettre à jour les données de la carte plus tard si besoin

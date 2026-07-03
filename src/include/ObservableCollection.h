@@ -8,7 +8,8 @@
 // Les types de notifications possibles (comme dans ton projet)
 enum class Notifications: std::uint8_t {
     ItemAdded,
-    ItemRemoved
+    ItemRemoved,
+    ItemUpdated
 };
 
 template <typename T>
@@ -61,6 +62,24 @@ public:
             return true;
         }
         return false; // ID non trouvé
+    }
+
+    const T* getById(int id) const {
+        auto it = std::find_if(m_items.begin(), m_items.end(), [id](const T& item) {
+            return item.id == id;
+            });
+        return it != m_items.end() ? &(*it) : nullptr;
+    }
+
+    bool updateById(int id, const std::function<void(T&)>& mutator) {
+        auto it = getById(id);
+
+        if (it != m_items.end()) {
+            mutator(*it);
+            notify(Notifications::ItemUpdated, id);
+            return true;
+        }
+        return false;
     }
 
 private:
