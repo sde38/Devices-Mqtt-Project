@@ -9,23 +9,23 @@ add_library(SimulatorLib OBJECT
     DevicesWidget.cpp
 )
 
-# Configuration des dossiers d'inclusion
 target_include_directories(SimulatorLib PUBLIC include)
- 
+
 target_link_libraries(SimulatorLib PUBLIC 
-    Qt6::Widgets MqttComm
+    Qt6::Widgets 
+    MqttComm
     nlohmann_json::nlohmann_json)
 
 # Création de l'exécutable final de l'application
 add_executable(Simulator Main.cpp)
 
 target_include_directories(Simulator PUBLIC 
- $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_link_libraries(Simulator PRIVATE SimulatorLib)
 
-# Lien avec la dépendance JSON
-target_link_libraries(Simulator PUBLIC nlohmann_json::nlohmann_json)
+# nlohmann_json est déjà propagé via SimulatorLib PUBLIC → ligne redondante supprimée
 
-# 3. Inclusion des tests
-add_subdirectory(Tests)
+if(BUILD_TESTS)
+    add_subdirectory(Tests)
+endif()

@@ -9,7 +9,8 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <map>
-#include "Structures.h"
+
+#include <Structures.h>
 
 class DevicesWidget : public QWidget {
     Q_OBJECT

@@ -125,7 +125,7 @@ void DevicesWidget::onAjouterClicked() {
     m_listDevices->addItem(nom);
 
     // 3. Envoi MQTT
-    MsgAjout msg{d.nom, d.type, d.temperature, d.charge};
+    MsgAjoutDevice msg{ d.id, d.nom, d.type, d.temperature, d.charge};
     MqttManagerSimulator::instance().publierStructure("Ajouter Device", msg);
 
     // --- CODE SIMULATION ---

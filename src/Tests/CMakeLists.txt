@@ -1,41 +1,38 @@
 cmake_minimum_required(VERSION 3.14)
 
-# --- Configuration locale de GoogleTest ---
-
-# Options demandées
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
-# Chemin local vers GoogleTest (par rapport à ce fichier CMakeLists.txt)
-# ./src/Tests/ -> ../../../Third-Party/googletest-main
-set(GTEST_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../Third-Party/googletest-main")
+# GTEST_SOURCE_DIR : hérité du CMakeLists racine (Devices Mqtt Project) via GTEST_DIR si présent,
+# sinon (build standalone de Simulator) recalculé depuis Third-Party.
+if(DEFINED GTEST_DIR)
+    set(GTEST_SOURCE_DIR "${GTEST_DIR}")
+else()
+    get_filename_component(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../Third-Party" ABSOLUTE)
+    set(GTEST_SOURCE_DIR "${THIRD_PARTY_DIR}/googletest-main")
+endif()
 set(GTEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-build")
 
-# Ajout du sous-répertoire avec spécification du dossier de build binaire
-add_subdirectory(${GTEST_SOURCE_DIR} ${GTEST_BINARY_DIR})
+# Protection contre le double-import de GoogleTest (déjà importé par MqttCom/src/Tests
+# ou Monitoring/src/Tests dans le build fusionné)
+if(NOT TARGET gtest)
+    add_subdirectory(${GTEST_SOURCE_DIR} ${GTEST_BINARY_DIR})
+endif()
 
-# Inclusion des macros de découverte de tests
 include(GoogleTest)
 
-# --- Configuration de l'exécutable de Tests ---
-
-# Récupération automatique de tous les fichiers de tests présents dans le dossier
-file(GLOB TEST_SOURCES "*.cpp")
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "*.cpp")
 
 add_executable(SimulatorTests ${TEST_SOURCES})
 
-
-# Liens avec l'application, GTest et Qt
 target_link_libraries(SimulatorTests PRIVATE
-    SimulatorLib          # Contient MainWindows.o et DevicesWidget.o
+    SimulatorLib
     gtest
     gtest_main
-    Qt6::Widgets          # Nécessaire si les widgets sont testés
+    Qt6::Widgets
     Qt6::Test
 )
 
-# Spécification des dossiers d'inclusion pour trouver les headers du projet (MainWindows.h...)
 target_include_directories(SimulatorTests PRIVATE ../include)
 
-# Découverte automatique des tests par CMake (Ctest)
 gtest_discover_tests(SimulatorTests)
