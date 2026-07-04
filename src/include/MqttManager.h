@@ -9,6 +9,11 @@
 
 #include "mqtt/async_client.h"
 
+// Déclaration du template primaire MqttSerializer.
+// Les spécialisations concrètes (JSON, etc.) sont fournies dans MqttJsonSerializer.h.
+template <typename T>
+struct MqttSerializer;
+
 // On hérite publiquement de mqtt::callback
 class MqttManager : public virtual mqtt::callback {
 public:
