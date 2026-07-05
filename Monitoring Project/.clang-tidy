@@ -1,0 +1,17 @@
+# Désactive tout (-*), puis active les groupes souhaités
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -readability-identifier-length,
+  -modernize-use-trailing-return-type,
+  -bugprone-easily-swappable-parameters
+
+# Équivalent de -header-filter=".*"
+HeaderFilterRegex: '.*'
+
+# Optionnel : Tu peux aussi forcer des options de diagnostics ici si besoin
+WarningsAsErrors: ''
